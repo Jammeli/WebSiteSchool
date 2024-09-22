@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios"; // Import axios for API calls
+import axios from "axios";
 import SectionTitleSpecial from "../../components/SectionTitle/SectionTitleSpecial";
 import SingleCourse from "../../components/Course";
 import RightArrow from "../../components/SVG";
-import courseBG from "../../assets/img/course/ed-bg-1.jpg"; // Background image
+import courseBG from "../../assets/img/course/ed-bg-1.jpg";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 // Function to format the date
 const formatDate = (dateString) => {
@@ -13,15 +16,13 @@ const formatDate = (dateString) => {
 };
 
 const Course = () => {
-  const [news, setNews] = useState([]); // State to store news
-  const [loading, setLoading] = useState(true); // Track loading state
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch news from backend API
   useEffect(() => {
     const fetchNews = async () => {
       try {
         const response = await axios.get("https://io.trustensia.com/api/news");
-        console.log("API Response:", response.data); // Log API response
         setNews(response.data);
         setLoading(false);
       } catch (error) {
@@ -33,15 +34,40 @@ const Course = () => {
     fetchNews();
   }, []);
 
-  // Display loading state
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  // If no news found, display a message
   if (!news.length) {
     return <div>Aucune actualité disponible pour le moment.</div>;
   }
+
+  // Slick carousel settings (without arrows)
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3, // Display 3 slides at once
+    slidesToScroll: 1, // Scroll 1 slide at a time
+    autoplay: true,
+    autoplaySpeed: 3000,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
 
   return (
     <div
@@ -49,12 +75,18 @@ const Course = () => {
       className="it-course-area ed-course-bg ed-course-style-3 p-relative pt-120 pb-90"
       style={{ backgroundImage: `url(${courseBG})` }}
     >
+      <style>{`
+        .news-carousel-item {
+          padding: 2px; /* Add some padding to the items */
+        }
+      `}</style>
+      
       <div className="container">
         <div className="ed-course-title-wrap mb-65">
           <div className="row align-items-center">
             <div className="col-xl-8 col-lg-8 col-md-7">
               <SectionTitleSpecial
-                itemClass="it-course-title-boxmb-70 section-title-fixed-width"
+                itemClass="it-course-title-box mb-70 section-title-fixed-width"
                 subTitle="Actualités"
                 preTitle="L'École Canadienne Internationale de Sousse dévoile ses dernières "
                 highlightText="actualités."
@@ -73,24 +105,20 @@ const Course = () => {
             </div>
           </div>
         </div>
-        <div className="row">
-          {/* Loop through the news data */}
+        <Slider {...settings}>
           {news.map((newsItem) => (
-            <div
-              className="col-xl-4 col-lg-6 col-md-6 mb-30"
-              key={newsItem._id}
-            >
+            <div key={newsItem._id} className="news-carousel-item">
               <SingleCourse
-                courseImage={newsItem.image} // Display news image
-                thumbText={newsItem.title} // Display title
-                title={newsItem.title} // Display title again if needed
-                description={newsItem.description} // Display description
-                duration={formatDate(newsItem.datetime)} // Format and display datetime as duration
-                id={newsItem._id} // Pass the ID explicitly to the SingleCourse component
+                courseImage={newsItem.image}
+                thumbText={newsItem.title}
+                title={newsItem.title}
+                description={newsItem.description}
+                duration={formatDate(newsItem.datetime)}
+                id={newsItem._id}
               />
             </div>
           ))}
-        </div>
+        </Slider>
       </div>
     </div>
   );

@@ -115,22 +115,79 @@ const ContactMain = () => {
 
   const academicYear = getAcademicYear();
   const academicYear2 = getAcademicYear2();
+  const validateForm = () => {
+    // Check if any required field is empty
+    const requiredFields = [
+      formData.email,
+      formData.nomEleve,
+      formData.prenomEleve,
+      formData.dateNaissanceEleve,
+      formData.nationaliteEleve,
+      formData.sexeEleve,
+      formData.adresseResidence,
+      formData.fratrieECT,
+      formData.ecoleActuelle,
+      formData.niveauScolaire,
+      formData.situationFamiliale,
+      formData.premierResponsableLegal.nomPrenom,
+      formData.premierResponsableLegal.nationalite,
+      formData.premierResponsableLegal.profession,
+      formData.premierResponsableLegal.telephone1,
+      formData.premierResponsableLegal.email1,
+      formData.deuxiemeResponsableLegal.nomPrenom,
+      formData.deuxiemeResponsableLegal.nationalite,
+      formData.deuxiemeResponsableLegal.profession,
+      formData.deuxiemeResponsableLegal.telephone2,
+      formData.deuxiemeResponsableLegal.email2,
+    ];
+
+    for (let field of requiredFields) {
+      if (!field) {
+        toast.error("Veuillez remplir tous les champs obligatoires.");
+        return false;
+      }
+    }
+
+    // Check if panier is checked if there is an allergy
+    if (formData.sante.allergieAlimentaire && !formData.services.panier) {
+      toast.error("Le panier est obligatoire en cas d'allergie alimentaire.");
+      return false;
+    }
+
+    // Check if all engagements are checked
+    if (
+      !formData.engagements.exactitudeRenseignements ||
+      !formData.engagements.connaissanceConditions ||
+      !formData.engagements.connaissanceReglement
+    ) {
+      toast.error("Veuillez accepter tous les engagements.");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-      .post("https://io.trustensia.com/api/formulaire-preinscription", formData)
-      .then((response) => {
-        toast.success("Formulaire soumis avec succès!", {
-          onClose: () => navigate("/"), // Navigate after toast closes
-          autoClose: 3000, // Optional: adjust the duration before navigation
+
+    if (validateForm()) {
+      axios
+        .post(
+          "https://io.trustensia.com/api/formulaire-preinscription",
+          formData
+        )
+        .then((response) => {
+          toast.success("Formulaire soumis avec succès!", {
+            onClose: () => navigate("/"), // Navigate after toast closes
+            autoClose: 3000, // Optional: adjust the duration before navigation
+          });
+        })
+        .catch((error) => {
+          toast.error(
+            "Il y a eu une erreur lors de la soumission du formulaire! Vérifiez les champs à remplir."
+          );
         });
-      })
-      .catch((error) => {
-        toast.error(
-          "Il y a eu une erreur lors de la soumission du formulaire! Vérifiez les champs à remplir."
-        );
-      });
+    }
   };
 
   return (
@@ -233,15 +290,16 @@ const ContactMain = () => {
                             </div>
                           </div>
 
-                          <div className="col-12 mb-25">
+                          <div className="col-12 mb-2.5">
                             <div className="it-contact-input-box">
                               <label>École actuelle {academicYear} : *</label>
                               <input
                                 type="text"
-                                name="ÉcoleActuelle"
-                                placeholder="Ecole actuelle"
+                                name="ecoleActuelle"
+                                placeholder="École actuelle"
                                 value={formData.ecoleActuelle}
                                 onChange={handleChange}
+                                required
                               />
                             </div>
                           </div>
@@ -397,7 +455,7 @@ const ContactMain = () => {
                                   <th
                                     style={{
                                       borderBottom: "1px solid #ccc",
-                                      padding: "50px",
+                                      padding: "37px",
                                     }}
                                   ></th>
                                   <th
@@ -658,9 +716,9 @@ const ContactMain = () => {
                     <div className="col-12 mb-25">
                       <div className="it-contact-input-box">
                         <label className="text-center">
-                          Services * <br />
+                          Services <br />
                           <small>
-                            Panier obligatoire si allergie(s) alimentaire(s) *
+                            Panier obligatoire si allergie(s) alimentaire(s)
                           </small>
                           <br />
                           <small>

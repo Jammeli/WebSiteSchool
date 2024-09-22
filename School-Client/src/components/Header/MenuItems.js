@@ -45,7 +45,7 @@ const MenuItems = (props) => {
   };
 
   return (
-    <ul className="text-center">
+    <ul>
       <li className="has-dropdown p-static">
         {/* <Link
           to="/"
@@ -294,7 +294,7 @@ const MenuItems = (props) => {
           </li>
         </ul>
       </li>
-     
+
       <li className="has-dropdown">
         <Link to="" className={blog ? "expanded" : ""} onClick={handleClick}>
           <span>Services connexes</span>
